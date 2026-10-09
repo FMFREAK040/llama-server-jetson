@@ -1,0 +1,22 @@
+name: Build llama-server-jetson
+
+on:
+  workflow_dispatch:     # lets you start it manually with a button
+  push:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04-arm    # native arm64 machine
+    timeout-minutes: 300
+    steps:
+      - uses: actions/checkout@v4
+
+      # The l4t-jetpack base image is large; free up disk space first
+      - name: Free disk space
+        run: |
+          sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc /opt/hostedtoolcache || true
+          docker system prune -af || true
+          df -h
+
+      - uses: docker/setup-buildx-action@v3
