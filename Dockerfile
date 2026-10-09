@@ -5,13 +5,13 @@ RUN git clone --depth 1 https://github.com/ggml-org/llama.cpp /src
 WORKDIR /src
 RUN ln -sf /usr/local/cuda/lib64/stubs/libcuda.so /usr/local/cuda/lib64/stubs/libcuda.so.1
 RUN cmake -B build -DGGML_CUDA=ON -DCMAKE_CUDA_ARCHITECTURES=87 \
+      -DGGML_NATIVE=OFF -DGGML_CPU_ARM_ARCH=armv8.2-a+dotprod+fp16 \
       -DLLAMA_CURL=ON -DCMAKE_BUILD_TYPE=Release \
       -DLLAMA_BUILD_TESTS=OFF -DLLAMA_BUILD_EXAMPLES=OFF \
       -DCMAKE_EXE_LINKER_FLAGS="-Wl,-rpath-link,/usr/local/cuda/lib64/stubs" \
       -DCMAKE_SHARED_LINKER_FLAGS="-Wl,-rpath-link,/usr/local/cuda/lib64/stubs" \
  && cmake --build build -j$(nproc) --target llama-server \
  && mkdir -p /out && cp -a build/bin/. /out/
-
 # L4T driver userspace (libcuda etc.), unpacked without maintainer scripts
 RUN curl -fsSL https://repo.download.nvidia.com/jetson/jetson-ota-public.asc \
       | gpg --dearmor -o /usr/share/keyrings/jetson.gpg \
